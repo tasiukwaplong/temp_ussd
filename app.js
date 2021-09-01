@@ -1,10 +1,28 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
+const http = require('http');
+// const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+// app.use(cookieParser());
 
+// app.set('view engine', 'pug');
+app.use(express.static('docs'))
+
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
+// require('./src/routes')(app);
+
+app.get('*', (req, res) => res.status(200).send({
+  message: 'Endpoint does not exist yet'
+}));
+
+// ussd starts here
 app.post('/ussd', (req, res) => {
     // Read the variables sent via POST from our API
     const {
@@ -40,3 +58,14 @@ app.post('/ussd', (req, res) => {
     res.set('Content-Type: text/plain');
     res.send(response);
 });
+// ussd stops here
+
+const port = parseInt(process.env.PORT, 10) || 8000;
+app.set('port', port);
+
+const server = http.createServer(app);
+server.listen(port, () => {
+  console.log(`http://localhost:${port}/`);
+});
+
+module.exports = app;
